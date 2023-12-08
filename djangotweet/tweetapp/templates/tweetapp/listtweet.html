@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-3 sidebar bg-light p-3">
+            <!-- Arama kutusu -->
+            <div class="container mt-5">
+                <form method="GET">
+                  <div class="input-group mb-3">
+                    <input type="text" class="form-control" name="nickname" placeholder="Başlık Ara...">
+                    <div class="input-group-append">
+                      <button class="btn btn-primary" type="submit">Ara</button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            <!-- Sol taraftaki başlıklar -->
+            
+            <div class="card shadow mb-3">
+                <div class="card-header">
+                    <h5 class="mb-0">Tweet Başlıkları</h5>
+                </div>
+                <ul class="list-group list-group-flush" id = "nickname_list">
+                    <a href="{% url 'tweetapp:listtweet' %}" class="btn btn-primary">Tümü</a>
+                    {% regroup tweets by nickname as nickname_list %}
+                    {% for item in nickname_list %}
+                        <a href="{% url 'tweetapp:listtweet' %}?nickname={{ item.grouper }}" class="list-group-item">{{ item.grouper }} {% if item.list|length > 1 %}({{ item.list|length }}){% endif %}</a>
+                        <!-- Yukarıdaki satır, başlığı bir bağlantı olarak gösterir ve tıklanabilir hale getirir -->
+                        <!-- Yukarıdaki satır, aynı başlığı bir liste elemanı olarak gösterir -->
+                    {% endfor %}
+                    <li class="list-group-item" id="{{ item.grouper|slugify }}">{{ item.grouper }} {% if item.list|length > 1 %}({{ item.list|length }}){% endif %}</li>
+                </ul>
+            </div>
+            
+            <!-- İsterseniz buraya istediğiniz kadar başlık ve içerik ekleyebilirsiniz -->
+        </div>
+        <div class="col-lg-9 content">
+            <!-- Sağ taraftaki içerik -->
+            <h1 class="text-center mb-4">Tweetler</h1>
+            {% for tweet in tweets %}
+            <div class="card shadow mb-3">
+                {% if tweet.image %}
+                    <img src="{{ tweet.image.url }}" class="card-img-top" style='width:200px' alt="">
+                {% else %}
+                    <p></p>
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ tweet.username }}</h5>
+                    <p class="card-text">{{ tweet.nickname }}</p>
+                    <p class="card-text">{{ tweet.message }}</p>
+                    <p class="card-text">{{ tweet.publishing_date }}</p>
+                </div>
+                {% if tweet.username == user %}
+                    <a href="{% url "tweetapp:deletetweet" id=tweet.id %}" class="btn btn-danger"> Tweeti Sil </a>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
